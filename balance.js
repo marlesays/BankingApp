@@ -1,51 +1,50 @@
-function Withdraw(){
+function Balance(){
   const [show, setShow]     = React.useState(true);
   const [status, setStatus] = React.useState('');  
 
   return (
     <Card
-      bgcolor="success"
-      header="Withdraw"
+      bgcolor="info"
+      header="Balance"
       status={status}
-      body={show ? 
-        <WithdrawForm setShow={setShow} setStatus={setStatus}/> :
-        <WithdrawMsg setShow={setShow}/>}
+      body={show ?
+        <BalanceForm setShow={setShow} setStatus={setStatus}/> :
+        <BalanceMsg setShow={setShow}/>}
     />
   )
+
 }
 
-function WithdrawMsg(props){
+function BalanceMsg(props){
   return(<>
     <h5>Success</h5>
     <button type="submit" 
       className="btn btn-light" 
       onClick={() => props.setShow(true)}>
-        Withdraw again
+        Check balance again
     </button>
   </>);
 }
 
-function WithdrawForm(props){
+function BalanceForm(props){
   const [email, setEmail]   = React.useState('');
-  const [amount, setAmount] = React.useState('');
+  const [balance, setBalance] = React.useState('');  
   const ctx = React.useContext(UserContext);  
 
   function handle(){
-    console.log(email,amount);
     const user = ctx.users.find((user) => user.email == email);
     if (!user) {
       props.setStatus('fail!')      
       return;      
     }
 
-    user.balance = user.balance - Number(amount);
+    setBalance(user.balance);
     console.log(user);
-    props.setStatus('');      
+    props.setStatus('Your balance is: ' + user.balance);      
     props.setShow(false);
   }
 
-
-  return(<>
+  return (<>
 
     Email<br/>
     <input type="input" 
@@ -54,17 +53,10 @@ function WithdrawForm(props){
       value={email} 
       onChange={e => setEmail(e.currentTarget.value)}/><br/>
 
-    Amount<br/>
-    <input type="number" 
-      className="form-control" 
-      placeholder="Enter amount" 
-      value={amount} 
-      onChange={e => setAmount(e.currentTarget.value)}/><br/>
-
     <button type="submit" 
       className="btn btn-light" 
       onClick={handle}>
-        Withdraw
+        Check Balance
     </button>
 
   </>);

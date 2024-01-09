@@ -1,100 +1,66 @@
-
-
 function Deposit(){
-  const [show, setShow]         = React.useState(true);
-  const [status, setStatus]     = React.useState('');
-  const [balance, setBalance]         = React.useState('');
-  const [deposit, setDeposit]       = React.useState('');
-  const ctx = React.useContext(UserContext);  
-
- //deposit button event handler
- const deposit_btn = document.getElementById('deposit-btn');
- deposit_btn.addEventListener('click', function(){
-
-     const depositStringToInt = getInputNumb("deposit-amount");
-
-     updateSpanTest("current-deposit", depositStringToInt);
-     updateSpanTest("current-balance", depositStringToInt);
-
-     //setting up the input field blank when clicked
-     document.getElementById('deposit-amount').value = "";
-
- })
-
-  //withdraw button event handler
-  const withdraw_btn = document.getElementById('withdraw-btn');
-  withdraw_btn.addEventListener('click', function(){
-     const withdrawNumb = getInputNumb("withdraw-amount");
-
-     updateSpanTest("current-withdraw", withdrawNumb);
-     updateSpanTest("current-balance", -1 * withdrawNumb);
-     //setting up the input field blank when clicked
-     document.getElementById('withdraw-amount').value = "";
- })
-
- //function to parse string input to int
- function getInputNumb(idName){
-     const amount = document.getElementById(idName).value;
-     const amountNumber = parseFloat(amount);
-     return amountNumber;
- }
-
- function updateSpanTest(idName, addedNumber){
-     //x1.1 updating balance the same way
-     const current = document.getElementById(idName).innerText;
-     const currentStringToInt = parseFloat(current);
-
-     const total = currentStringToInt + addedNumber;
-
-     //x1.2 setting this value in balance
-     document.getElementById(idName).innerText = total;
- }
-
-
-  function validate(field, label){
-      if (field < 1) {
-        setStatus('Error: ' + label + ' must be a positive number.');
-        setTimeout(() => setStatus(''),3000);
-        return false;
-      }
-      return true;
-  }
-
-  function handleCreate(){
-    console.log(balance,deposit);
-    if (!validate(balance,     'balance'))     return;
-    if (!validate(deposit,    'deposit'))    return;
-    ctx.users.push({balance,deposit,balance:100});
-    setShow(false);
-  }    
-
-  function clearForm(){
-    setBalance('');
-    setDeposit('');
-    setShow(true);
-  }
+  const [show, setShow]     = React.useState(true);
+  const [status, setStatus] = React.useState('');  
 
   return (
     <Card
-      bgcolor="primary"
+      bgcolor="warning"
       header="Deposit"
       status={status}
-      body={show ? (  
-              <>
-              Balance<br/>
-              <span id="current-balnce">0</span> <br/>
-              Deposit<br/>
-              <input type="text" className="form-control" id="deposit-amount" placeholder="Enter deposit amount"  /><br/>
-              <button type="submit" className="btn btn-light" onClick={handleCreate}>Submit Deposit</button>
-              </>
-            ):(
-              <>
-              <h5>Success</h5>
-              <button type="submit" className="btn btn-light" onClick={clearForm}>New Deposit</button>
-              </>
-            )}
+      body={show ? 
+        <DepositForm setShow={setShow} setStatus={setStatus}/> :
+        <DepositMsg setShow={setShow}/>}
     />
   )
 }
 
+function DepositMsg(props){
+  return (<>
+    <h5>Success</h5>
+    <button type="submit" 
+      className="btn btn-light" 
+      onClick={() => props.setShow(true)}>
+        Deposit again
+    </button>
+  </>);
+} 
 
+function DepositForm(props){
+  const [email, setEmail]   = React.useState('');
+  const [amount, setAmount] = React.useState('');
+  const ctx = React.useContext(UserContext);  
+
+  function handle(){
+    console.log(email,amount);
+    const user = ctx.users.find((user) => user.email == email);
+    if (!user) {
+      props.setStatus('fail!');
+      return;      
+    }
+
+    user.balance = user.balance + Number(amount);
+    console.log(user);
+    props.setStatus('');      
+    props.setShow(false);
+  }
+
+  return(<>
+
+    Email<br/>
+    <input type="input" 
+      className="form-control" 
+      placeholder="Enter email" 
+      value={email} onChange={e => setEmail(e.currentTarget.value)}/><br/>
+      
+    Amount<br/>
+    <input type="number" 
+      className="form-control" 
+      placeholder="Enter amount" 
+      value={amount} onChange={e => setAmount(e.currentTarget.value)}/><br/>
+
+    <button type="submit" 
+      className="btn btn-light" 
+      onClick={handle}>Deposit</button>
+
+  </>);
+}
